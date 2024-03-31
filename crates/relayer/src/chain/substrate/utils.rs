@@ -353,12 +353,20 @@ pub async fn build_state_proof(
     storage_key: Vec<u8>,
     value: Vec<u8>,
 ) -> Result<StateProof, Error> {
-    // debug!(
-    //     "🐙🐙 ics10::utils -> build_state_proof storage_key:{:?} block_hash:{:?} ",
-    //     hex::encode(storage_key.clone()),
-    //     block_hash
-    // );
-
+    debug!(
+        "🐙🐙 ics10::utils -> build_state_proof hex(storage_key):{:?}",
+        hex::encode(storage_key.clone()),
+    );
+    let header = relay_rpc_client
+        .rpc()
+        .header(block_hash)
+        .await
+        .unwrap()
+        .unwrap();
+    debug!(
+        "🐙🐙 ics10::utils -> build_state_proof block_hash:{:?},block_header:{:?} ",
+        block_hash, header
+    );
     let proofs = relay_rpc_client
         .rpc()
         .read_proof(vec![storage_key.as_ref()], block_hash)
@@ -370,10 +378,10 @@ pub async fn build_state_proof(
         proofs: proofs.proof.into_iter().map(|v| v.0).collect(),
     };
 
-    // debug!(
-    //     "🐙🐙 ics10::utils -> build_state_proof state_proof is {:?}",
-    //     state_proof
-    // );
+    debug!(
+        "🐙🐙 ics10::utils -> build_state_proof state_proof is {:?}",
+        state_proof
+    );
 
     Ok(state_proof)
 }

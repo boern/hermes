@@ -1323,9 +1323,18 @@ impl ChainEndpoint for SubstrateChain {
                     relaychain_node::runtime_types::ibc::core::ics24_host::path::ClientStatePath(
                         client_id,
                     );
+                debug!(
+                        "🐙🐙 ics10::substrate::query_client_state -> client_state_path: {:?}",
+                        client_state_path
+                    );
+    
                 let storage = relaychain_node::storage()
                     .ibc()
                     .client_states(client_state_path);
+                // debug!(
+                //     "🐙🐙 ics10::substrate::query_client_state -> storage key: {:?}",
+                //     storage
+                // );
 
                 let query_hash = match request.height {
                     QueryHeight::Latest => relay_rpc_client.rpc().block_hash(None).await.unwrap(),
@@ -1347,11 +1356,16 @@ impl ChainEndpoint for SubstrateChain {
                     .unwrap()
                     .unwrap();
 
+                debug!(
+                        "🐙🐙 ics10::substrate::query_client_state -> encoded client state: {:?}",
+                        client_state
+                    );
+
                 let any_client_state =
                     AnyClientState::decode_vec(&client_state).map_err(Error::decode)?;
 
                 debug!(
-                    "🐙🐙 ics10::substrate::query_client_state -> states: {:?}",
+                    "🐙🐙 ics10::substrate::query_client_state -> decode client state: {:?}",
                     any_client_state
                 );
                 match include_proof {
@@ -1571,12 +1585,15 @@ impl ChainEndpoint for SubstrateChain {
                     .await
                     .unwrap()
                     .unwrap();
-
+                debug!(
+                    "🐙🐙 ics10::substrate::query_consensus_state -> consensus_state: {:?}",
+                    consensus_states
+                );
                 let any_consensus_state =
                     AnyConsensusState::decode_vec(&consensus_states).map_err(Error::decode)?;
 
                 debug!(
-                    "🐙🐙 ics10::substrate::query_consensus_state -> consensus_state: {:?}",
+                    "🐙🐙 ics10::substrate::query_consensus_state -> decoded consensus_state: {:?}",
                     any_consensus_state
                 );
                 match include_proof {
@@ -1606,16 +1623,29 @@ impl ChainEndpoint for SubstrateChain {
                     relaychain_node::runtime_types::ibc::core::ics24_host::identifier::ClientId(
                         request.client_id.to_string(),
                     );
+                // debug!(
+                //         "🐙🐙 ics10::substrate::query_consensus_state -> client_id: {:?}",
+                //         client_id
+                //     );
                 let client_conesnsus_state_path =
                     relaychain_node::runtime_types::ibc::core::ics24_host::path::ClientConsensusStatePath {
                         client_id,
                         epoch: request.consensus_height.revision_number(),
                         height: request.consensus_height.revision_height()
                     };
+                debug!(
+                        "🐙🐙 ics10::substrate::query_consensus_state -> client_conesnsus_state_path: {:?}",
+                        client_conesnsus_state_path
+                    );
+
                 let storage = relaychain_node::storage()
                     .ibc()
                     .consensus_states(client_conesnsus_state_path);
-
+                
+                // debug!(
+                //         "🐙🐙 ics10::substrate::query_consensus_state -> storage key: {:?}",
+                //         storage
+                //     );
                 let query_hash = match request.query_height {
                     QueryHeight::Latest => relay_rpc_client.rpc().block_hash(None).await.unwrap(),
                     QueryHeight::Specific(v) => relay_rpc_client
@@ -1635,12 +1665,16 @@ impl ChainEndpoint for SubstrateChain {
                     .await
                     .unwrap()
                     .unwrap();
-
+                debug!(
+                    "🐙🐙 ics10::substrate::query_consensus_state -> pb encoded consensus_state: {:?}",
+                    consensus_states
+                );
+                
                 let any_consensus_state =
                     AnyConsensusState::decode_vec(&consensus_states).map_err(Error::decode)?;
 
                 debug!(
-                    "🐙🐙 ics10::substrate::query_consensus_state -> consensus_state: {:?}",
+                    "🐙🐙 ics10::substrate::query_consensus_state -> decoded consensus_state: {:?}",
                     any_consensus_state
                 );
                 match include_proof {
@@ -1909,10 +1943,10 @@ impl ChainEndpoint for SubstrateChain {
                     relaychain_node::runtime_types::ibc::core::ics24_host::path::ConnectionsPath(
                         connection_id,
                     );
-                // debug!(
-                //     "🐙🐙 ics10::substrate::query_connection -> connection_id: {:?} connection_path: {:?}",
-                //     request.connection_id, connection_path
-                // );
+                debug!(
+                    "🐙🐙 ics10::substrate::query_connection -> connection_id: {:?} connection_path: {:?}",
+                    request.connection_id, connection_path
+                );
 
                 let storage = relaychain_node::storage()
                     .ibc()
@@ -1922,7 +1956,10 @@ impl ChainEndpoint for SubstrateChain {
                 //     "🐙🐙 ics10::substrate::query_connection -> storage key: {:?}",
                 //     hex::encode(storage.to_bytes())
                 // );
-
+                // debug!(
+                //     "🐙🐙 ics10::substrate::query_connection -> storage key: {:?}",
+                //     storage
+                // );
                 let query_hash = match request.height {
                     QueryHeight::Latest => {
                         let query_hash = relay_rpc_client.rpc().block_hash(None).await.unwrap();
@@ -2307,7 +2344,10 @@ impl ChainEndpoint for SubstrateChain {
                     relaychain_node::runtime_types::ibc::core::ics24_host::path::ChannelEndsPath(
                         port_id, channel_id,
                     );
+                debug!("🐙🐙 ics10::substrate::query_channel -> channel_ends_path: {:?}", channel_ends_path);
+
                 let storage = relaychain_node::storage().ibc().channels(channel_ends_path);
+                // debug!("🐙🐙 ics10::substrate::query_channel -> storage key: {:?}", storage);
 
                 let query_hash = match request.height {
                     QueryHeight::Latest => relay_rpc_client.rpc().block_hash(None).await.unwrap(),
@@ -2333,7 +2373,7 @@ impl ChainEndpoint for SubstrateChain {
                 debug!("🐙🐙 ics10::substrate::query_channel -> channel_end: {:?}", result);
                 match include_proof {
                     IncludeProof::Yes => {
-                        // scale encode consensus_states
+                        // scale encode ChannelEnd
                         let value = codec::Encode::encode(&result);
                         let state_proof = utils::build_state_proof(
                             relay_rpc_client,
@@ -2642,9 +2682,17 @@ impl ChainEndpoint for SubstrateChain {
                         channel_id,
                         sequence,
                     };
+                debug!(
+                        "🐙🐙 ics10::substrate::query_packet_commitment -> packet_commitment_path: {:?}",
+                        packet_commitment_path
+                    );
                 let storage = relaychain_node::storage()
                     .ibc()
                     .packet_commitment(packet_commitment_path);
+                // debug!(
+                //     "🐙🐙 ics10::substrate::query_packet_commitment -> storage key: {:?}",
+                //     storage
+                // );
 
                 let query_hash = match request.height {
                     QueryHeight::Latest => relay_rpc_client.rpc().block_hash(None).await.unwrap(),
@@ -2913,9 +2961,18 @@ impl ChainEndpoint for SubstrateChain {
                         channel_id,
                         sequence,
                     };
+                debug!(
+                        "🐙🐙 ics10::substrate::query_packet_receipt -> packet_receipt_path: {:?}",
+                        packet_receipt_path
+                    );
+
                 let storage = relaychain_node::storage()
                     .ibc()
                     .packet_receipt(packet_receipt_path);
+                // debug!(
+                //     "🐙🐙 ics10::substrate::query_packet_receipt -> storage key: {:?}",
+                //     storage
+                // );
 
                 let query_hash = match request.height {
                     QueryHeight::Latest => relay_rpc_client.rpc().block_hash(None).await.unwrap(),
@@ -3228,11 +3285,17 @@ impl ChainEndpoint for SubstrateChain {
                     relaychain_node::runtime_types::ibc::core::ics24_host::path::SeqRecvsPath(
                         port_id, channel_id,
                     );
-
+                debug!(
+                        "🐙🐙 ics10::substrate::query_next_sequence_receive -> next_sequence_recv_path: {:?}",
+                        next_sequence_recv_path
+                    );
                 let storage = relaychain_node::storage()
                     .ibc()
                     .next_sequence_recv(next_sequence_recv_path);
-
+                // debug!(
+                //     "🐙🐙 ics10::substrate::query_next_sequence_receive -> storage key: {:?}",
+                //     storage
+                // );
                 let query_hash = match request.height {
                     QueryHeight::Latest => relay_rpc_client.rpc().block_hash(None).await.unwrap(),
                     QueryHeight::Specific(v) => relay_rpc_client
@@ -3253,7 +3316,10 @@ impl ChainEndpoint for SubstrateChain {
                     .await
                     .unwrap()
                     .unwrap();
-
+                debug!(
+                    "🐙🐙 ics10::substrate::query_next_sequence_receive -> sequence: {:?}",
+                    result
+                );
                 match include_proof {
                     IncludeProof::Yes => {
                         // // Note: We expect the return to be a u64 encoded in big-endian. Refer to ibc-go:
@@ -3411,6 +3477,10 @@ impl ChainEndpoint for SubstrateChain {
                     .ibc()
                     .acknowledgements(acknowledgement_path);
 
+                // debug!(
+                //     "🐙🐙 ics10::substrate::query_packet_acknowledgement -> storage key: {:?}",
+                //     storage
+                // );
                 let query_hash = match request.height {
                     QueryHeight::Latest => relay_rpc_client.rpc().block_hash(None).await.unwrap(),
                     QueryHeight::Specific(v) => relay_rpc_client
